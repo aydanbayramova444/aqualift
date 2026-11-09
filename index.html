@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AquaLift — Smart Urban Rainwater Collection and Management System</title>
+<meta name="description" content="AquaLift collects rainwater from urban surfaces, filters it, stores it underground, moves it with sensor-driven pumps and returns it to the city as a non-potable resource.">
+<meta name="theme-color" content="#050b18">
+<meta property="og:title" content="AquaLift — Smart Urban Rainwater Collection and Management System">
+<meta property="og:description" content="Five stages from street runoff to a managed urban water resource.">
+<meta property="og:image" content="assets/a1-inlet-installation.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23050b18'/%3E%3Cpath d='M16 5c4.5 6 7.5 10 7.5 14a7.5 7.5 0 0 1-15 0C8.5 15 11.5 11 16 5z' fill='none' stroke='%233fd8f2' stroke-width='2.2'/%3E%3Cpath d='M16 23v-8m-3 3l3-3 3 3' fill='none' stroke='%233fd8f2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050b18;
+  --bg-2:#081227;
+  --panel:#0b1730;
+  --panel-2:#0f1f3d;
+  --line:rgba(150,190,235,.13);
+  --line-2:rgba(150,190,235,.24);
+  --text:#e9eff7;
+  --soft:#c3cfdf;
+  --muted:#8b9bb4;
+  --cyan:#3fd8f2;
+  --aqua:#1fb5cc;
+  --blue:#2f7bff;
+  --glow:rgba(63,216,242,.35);
+  --sheet:#f3f6fa;
+  --display:"Space Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --wrap:1240px;
+  --gutter:clamp(16px,4vw,48px);
+  --nav-h:72px;
+  --ease:cubic-bezier(.22,.8,.22,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:var(--nav-h)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+::selection{background:var(--cyan);color:var(--bg)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gutter)}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--cyan);font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase}
+.eyebrow::before{content:"";width:28px;height:1px;background:currentColor}
+
+/* ---------- Loader ---------- */
+.loader{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;transition:opacity .6s var(--ease),visibility .6s}
+.loader.done{opacity:0;visibility:hidden}
+.loader-inner{display:grid;gap:18px;justify-items:center}
+.loader-word{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:.02em}
+.loader-bar{width:160px;height:2px;background:var(--line);overflow:hidden;border-radius:2px}
+.loader-bar i{display:block;height:100%;width:40%;background:linear-gradient(90deg,transparent,var(--cyan));animation:load 1s var(--ease) infinite}
+@keyframes load{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+
+/* ---------- Nav ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;height:var(--nav-h);transition:background .4s,border-color .4s,backdrop-filter .4s;border-bottom:1px solid transparent}
+.nav.solid{background:rgba(5,11,24,.78);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-bottom-color:var(--line)}
+.nav .wrap{height:100%;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:.01em}
+.brand svg{width:30px;height:30px;flex:none}
+.brand b{font-weight:600;color:var(--cyan)}
+.nav-links{position:relative;display:flex;gap:4px;align-items:center}
+.nav-links a{position:relative;padding:8px 14px;font-size:14px;color:var(--muted);transition:color .25s;display:flex;gap:8px;align-items:baseline}
+.nav-links a span{font-family:var(--mono);font-size:11px;color:var(--cyan);opacity:.7}
+.nav-links a:hover,.nav-links a.active{color:var(--text)}
+.nav-indicator{position:absolute;bottom:-1px;height:2px;background:var(--cyan);box-shadow:0 0 12px var(--glow);border-radius:2px;transition:transform .45s var(--ease),width .45s var(--ease),opacity .3s;opacity:0;left:0;width:0}
+.nav-right{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 20px;border-radius:999px;font-size:14px;font-weight:500;letter-spacing:.01em;transition:background .3s,color .3s,border-color .3s,transform .3s var(--ease),box-shadow .3s;white-space:nowrap}
+.btn svg{width:16px;height:16px;transition:transform .3s var(--ease)}
+.btn-primary{background:var(--cyan);color:#03121c}
+.btn-primary:hover{box-shadow:0 0 0 6px rgba(63,216,242,.14),0 10px 30px -8px var(--glow);transform:translateY(-1px)}
+.btn-primary:hover svg{transform:translateX(3px)}
+.btn-ghost{border:1px solid var(--line-2);color:var(--text)}
+.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-desc.is-active{background:transparent;color:var(--cyan);box-shadow:inset 0 0 0 1px var(--cyan)}
+.menu-btn{display:none;width:44px;height:44px;border:1px solid var(--line-2);border-radius:50%;place-items:center}
+.menu-btn i{display:block;width:16px;height:1.5px;background:var(--text);position:relative;transition:transform .3s}
+.menu-btn i::before,.menu-btn i::after{content:"";position:absolute;left:0;width:16px;height:1.5px;background:var(--text);transition:transform .3s}
+.menu-btn i::before{top:-5px}.menu-btn i::after{top:5px}
+.menu-open .menu-btn i{background:transparent}
+.menu-open .menu-btn i::before{transform:translateY(5px) rotate(45deg)}
+.menu-open .menu-btn i::after{transform:translateY(-5px) rotate(-45deg)}
+.nav-progress{position:absolute;left:0;bottom:-1px;height:2px;width:100%;transform-origin:left;transform:scaleX(0);background:linear-gradient(90deg,var(--blue),var(--cyan));display:none}
+.mobile-menu{position:fixed;top:var(--nav-h);left:0;right:0;z-index:49;background:rgba(5,11,24,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:8px var(--gutter) 20px;transform:translateY(-12px);opacity:0;visibility:hidden;transition:all .35s var(--ease)}
+.menu-open .mobile-menu{transform:none;opacity:1;visibility:visible}
+.mobile-menu a{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--line);font-family:var(--display);font-size:20px}
+.mobile-menu a span{font-family:var(--mono);font-size:12px;color:var(--cyan)}
+
+/* ---------- Views ---------- */
+.view{transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.view[hidden]{display:none}
+.view.leaving{opacity:0;transform:translateY(14px)}
+.view.entering{opacity:0;transform:translateY(-10px)}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:calc(var(--nav-h) + clamp(12px,3vh,36px)) 0 0;overflow:hidden;isolation:isolate}
+.hero-bg{position:absolute;inset:0;z-index:-1;background:
+  radial-gradient(900px 600px at 78% 22%,rgba(47,123,255,.20),transparent 60%),
+  radial-gradient(700px 500px at 12% 85%,rgba(63,216,242,.12),transparent 60%),
+  linear-gradient(180deg,#050b18 0%,#071430 70%,#050b18 100%)}
+.hero-grid{position:absolute;inset:0;z-index:-1;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 80% 70% at 60% 40%,#000 20%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse 80% 70% at 60% 40%,#000 20%,transparent 75%);opacity:.55}
+.rain{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.rain i{position:absolute;top:-20%;width:1px;height:90px;background:linear-gradient(180deg,transparent,rgba(120,220,255,.55));animation:fall linear infinite;opacity:.0}
+@keyframes fall{0%{transform:translateY(0);opacity:0}10%{opacity:.7}100%{transform:translateY(130vh);opacity:0}}
+.hero-content{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,.65fr);gap:clamp(32px,4vw,64px);align-items:end}
+.hero h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,min(5.2vw,7.4vh),84px);line-height:1.06;letter-spacing:-.025em;margin:clamp(12px,2.2vh,22px) 0 clamp(14px,2.6vh,26px);text-wrap:balance}
+.hero h1 em{font-style:normal;background:linear-gradient(100deg,#9ff0ff 0%,var(--cyan) 40%,var(--blue) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-lead{font-size:clamp(16px,1.4vw,19px);color:var(--soft);max-width:620px;margin:0 0 clamp(18px,3.4vh,36px);font-weight:300}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px}
+.hero-meta{border-left:1px solid var(--line-2);padding-left:28px;display:grid;gap:clamp(14px,2.6vh,26px);margin-bottom:8px}
+.meta-item .k{font-family:var(--display);font-size:clamp(26px,4vh,38px);font-weight:500;line-height:1;color:var(--text)}
+.meta-item .k sup{font-size:14px;color:var(--cyan);margin-left:4px;vertical-align:top}
+.meta-item .v{color:var(--muted);font-size:14px;margin-top:6px;line-height:1.45}
+.journey{margin-top:clamp(24px,5vh,80px);border-top:1px solid var(--line);position:relative}
+.journey ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr)}
+.journey li{position:relative}
+.journey a{display:block;padding:clamp(14px,2.4vh,24px) 20px clamp(16px,3vh,30px) 0;transition:background .3s}
+.journey a::before{content:"";position:absolute;top:-5px;left:0;width:9px;height:9px;border-radius:50%;background:var(--bg);border:1.5px solid var(--cyan);transition:background .3s,box-shadow .3s}
+.journey a:hover::before{background:var(--cyan);box-shadow:0 0 0 6px rgba(63,216,242,.15)}
+.journey .j-n{font-family:var(--mono);font-size:12px;color:var(--cyan);letter-spacing:.14em}
+.journey .j-t{display:block;font-family:var(--display);font-size:clamp(16px,1.5vw,20px);margin-top:6px;transition:color .3s}
+.journey .j-d{display:block;color:var(--muted);font-size:13px;margin-top:4px;line-height:1.5}
+.journey a:hover .j-t{color:var(--cyan)}
+.journey-flow{position:absolute;top:-1px;left:0;height:1px;width:100%;background:linear-gradient(90deg,transparent,var(--cyan),transparent);background-size:30% 100%;background-repeat:no-repeat;animation:flowx 4.5s linear infinite}
+@keyframes flowx{from{background-position:-30% 0}to{background-position:130% 0}}
+.scroll-cue{position:absolute;right:var(--gutter);bottom:34px;display:flex;align-items:center;gap:12px;color:var(--muted)}
+.scroll-cue i{width:1px;height:46px;background:var(--line-2);position:relative;overflow:hidden}
+.scroll-cue i::after{content:"";position:absolute;left:0;top:-40%;width:1px;height:40%;background:var(--cyan);animation:cue 2s var(--ease) infinite}
+@keyframes cue{to{top:100%}}
+
+/* ---------- Progress rail ---------- */
+.rail{position:fixed;right:28px;top:50%;transform:translateY(-50%) translateX(20px);z-index:40;opacity:0;pointer-events:none;transition:opacity .5s,transform .5s var(--ease)}
+.rail.show{opacity:1;pointer-events:auto;transform:translateY(-50%)}
+.rail-track{position:absolute;right:4px;top:6px;bottom:6px;width:1px;background:var(--line-2)}
+.rail-fill{position:absolute;left:0;top:0;width:1px;height:100%;background:linear-gradient(180deg,var(--blue),var(--cyan));transform-origin:top;transform:scaleY(0);box-shadow:0 0 8px var(--glow)}
+.rail ol{list-style:none;margin:0;padding:0;display:grid;gap:34px;position:relative}
+.rail a{display:flex;align-items:center;justify-content:flex-end;gap:14px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.rail a .lbl{opacity:0;transform:translateX(6px);transition:opacity .3s,transform .3s var(--ease);white-space:nowrap}
+.rail:hover a .lbl{opacity:1;transform:none}
+.rail:hover::before{content:"";position:absolute;inset:-18px -14px -18px -150px;background:rgba(5,11,24,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);z-index:-1}
+.rail a.active{color:var(--text)}
+.rail a .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--muted);background:var(--bg);transition:all .35s var(--ease);position:relative;z-index:1}
+.rail a.passed .dot{border-color:var(--cyan);background:var(--cyan)}
+.rail a.active .dot{border-color:var(--cyan);background:var(--bg);box-shadow:0 0 0 5px rgba(63,216,242,.16),0 0 14px var(--glow);transform:scale(1.25)}
+
+/* ---------- Stages ---------- */
+.stages{position:relative}
+.stage{position:relative;padding:clamp(80px,12vh,140px) 0 clamp(40px,6vh,60px);overflow:hidden}
+.stage::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(800px 500px at var(--gx,85%) 30%,rgba(47,123,255,.08),transparent 65%)}
+.stage.flip{--gx:15%}
+.stage-head{display:flex;align-items:center;gap:18px;margin-bottom:clamp(36px,6vh,64px);color:var(--muted)}
+.stage-head .tag{color:var(--cyan)}
+.stage-head .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent)}
+.stage-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(40px,6vw,88px);align-items:start}
+.stage.flip .stage-grid{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.stage.flip .stage-text{order:2}
+.stage-text{position:relative}
+.big-num{font-family:var(--display);font-weight:600;font-size:clamp(96px,13vw,190px);line-height:.8;letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1px rgba(63,216,242,.38);margin:0 0 18px -6px;user-select:none;background:linear-gradient(180deg,rgba(63,216,242,.16),transparent 75%);-webkit-background-clip:text;background-clip:text}
+.stage h2{font-family:var(--display);font-weight:600;font-size:clamp(34px,4.4vw,58px);line-height:1.04;letter-spacing:-.02em;margin:0 0 26px;text-wrap:balance}
+.stage h2 small{display:block;font-family:var(--mono);font-size:12px;font-weight:400;letter-spacing:.18em;color:var(--cyan);margin-bottom:14px;text-transform:uppercase}
+.purpose{border-left:2px solid var(--cyan);padding:2px 0 2px 20px;margin:0 0 26px}
+.purpose .mono{color:var(--muted);display:block;margin-bottom:6px;font-size:11px}
+.purpose p{margin:0;font-size:clamp(17px,1.5vw,20px);line-height:1.5;color:var(--text);font-weight:400}
+.explain{color:var(--soft);margin:0 0 34px;font-weight:300;font-size:16.5px}
+.comp-title{display:flex;justify-content:space-between;align-items:baseline;color:var(--muted);padding-bottom:12px;border-bottom:1px solid var(--line-2)}
+.comp{list-style:none;margin:0;padding:0}
+.comp li{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid var(--line);transition:background .3s}
+.comp li:hover{background:linear-gradient(90deg,rgba(63,216,242,.05),transparent)}
+.comp .ci{font-family:var(--mono);font-size:12px;color:var(--cyan);padding-top:3px;letter-spacing:.08em}
+.comp strong{display:block;font-weight:500;font-size:16px;color:var(--text)}
+.comp span{display:block;color:var(--muted);font-size:14px;line-height:1.55;margin-top:2px}
+
+/* figure */
+.stage-media{position:relative}
+.figure{position:relative;margin:0}
+.frame{position:relative;aspect-ratio:4/3;border:1px solid var(--line-2);background:var(--panel);overflow:hidden;cursor:zoom-in;display:block;width:100%}
+.frame::before,.frame::after{content:"";position:absolute;width:22px;height:22px;z-index:3;pointer-events:none;border-color:var(--cyan);border-style:solid}
+.frame::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.frame::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.frame img{position:absolute;inset:0;width:100%;height:100%;transition:opacity .45s var(--ease),transform 1.2s var(--ease)}
+.frame[data-fit="contain"]{background:var(--sheet)}
+.frame[data-fit="contain"] img{object-fit:contain;padding:3%}
+.frame[data-fit="cover"] img{object-fit:cover}
+.frame[data-fit="cover"]::selection{background:none}
+.frame .shade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,transparent 60%,rgba(5,11,24,.45));opacity:0;transition:opacity .4s}
+.frame[data-fit="cover"] .shade{opacity:1}
+.frame:hover img{transform:scale(1.025)}
+.frame img.swap{opacity:0}
+.zoom-hint{position:absolute;right:14px;top:14px;z-index:4;display:flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:rgba(5,11,24,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--text);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;opacity:0;transform:translateY(-4px);transition:all .3s var(--ease)}
+.zoom-hint svg{width:13px;height:13px}
+.frame:hover .zoom-hint,.frame:focus-visible .zoom-hint{opacity:1;transform:none}
+.figcap{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:14px 0 0;color:var(--muted);font-size:14px}
+.figcap .fig-id{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:.14em;margin-right:10px}
+.figcap .count{font-family:var(--mono);font-size:11px;letter-spacing:.12em;white-space:nowrap}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:10px;margin-top:16px}
+.thumb{position:relative;aspect-ratio:4/3;border:1px solid var(--line);overflow:hidden;background:var(--sheet);opacity:.55;transition:opacity .3s,border-color .3s,transform .3s var(--ease)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb:hover{opacity:.9;transform:translateY(-2px)}
+.thumb.active{opacity:1;border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan)}
+
+/* logic block (stage D) */
+.logic{margin-top:28px;border:1px solid var(--line-2);background:linear-gradient(180deg,rgba(15,31,61,.6),rgba(11,23,48,.3))}
+.logic-head{display:flex;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line);color:var(--muted)}
+.logic-head .live{display:flex;align-items:center;gap:8px;color:var(--cyan)}
+.logic-head .live i{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.logic-body{display:grid;grid-template-columns:96px 1fr;gap:0 22px;padding:18px}
+.tank{position:relative;height:150px;border:1.5px solid var(--line-2);border-top:0;border-radius:0 0 8px 8px;overflow:hidden;align-self:center}
+.tank .water{position:absolute;left:0;right:0;bottom:0;height:40%;background:linear-gradient(180deg,rgba(63,216,242,.65),rgba(47,123,255,.5));animation:level 9s ease-in-out infinite}
+.tank .water::before{content:"";position:absolute;left:-50%;top:-6px;width:200%;height:12px;background:radial-gradient(ellipse at center,rgba(159,240,255,.7) 0 40%,transparent 41%) 0 0/24px 12px repeat-x;animation:wave 2.2s linear infinite;opacity:.6}
+@keyframes wave{to{transform:translateX(24px)}}
+@keyframes level{0%,100%{height:22%}45%{height:84%}55%{height:84%}}
+.tank .mark{position:absolute;left:0;right:0;border-top:1px dashed rgba(233,239,247,.45)}
+.tank .mark.h{top:22%}.tank .mark.l{top:70%}
+.tank .mark span{position:absolute;right:4px;top:-15px;font-family:var(--mono);font-size:9px;color:var(--soft);letter-spacing:.1em}
+.rules{list-style:none;margin:0;padding:0;display:grid;gap:0;align-content:center}
+.rules li{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--soft)}
+.rules li:last-child{border-bottom:0}
+.rules code{font-family:var(--mono);font-size:12px;color:var(--text)}
+.rules b{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.1em;padding:3px 8px;border-radius:4px;align-self:center}
+.on{background:rgba(63,216,242,.14);color:var(--cyan)}
+.off{background:rgba(139,155,180,.14);color:var(--soft)}
+.alert{background:rgba(255,170,80,.14);color:#ffb86b}
+.note{display:flex;gap:12px;align-items:flex-start;margin-top:24px;padding:14px 16px;border:1px solid rgba(63,216,242,.25);background:rgba(63,216,242,.05);font-size:14px;color:var(--soft)}
+.note .mono{color:var(--cyan);white-space:nowrap;font-size:11px;padding-top:2px}
+
+/* flow connectors between stages */
+.flow{position:relative;height:clamp(120px,18vh,180px);display:flex;justify-content:center}
+.flow .pipe{position:relative;width:2px;height:100%;background:var(--line-2);overflow:hidden}
+.flow .pipe::after{content:"";position:absolute;left:0;top:-40%;width:2px;height:40%;background:linear-gradient(180deg,transparent,var(--cyan));animation:drip 2.4s cubic-bezier(.55,0,.45,1) infinite}
+@keyframes drip{to{top:100%}}
+.flow .flow-lbl{position:absolute;top:50%;left:calc(50% + 22px);transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+.flow .flow-lbl b{font-family:var(--display);font-weight:500;font-size:15px;color:var(--text);letter-spacing:0;text-transform:none}
+.flow .flow-out{position:absolute;top:50%;right:calc(50% + 22px);transform:translateY(-50%);text-align:right;color:var(--muted)}
+.flow .node{position:absolute;top:50%;left:50%;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:var(--bg);border:1.5px solid var(--cyan);box-shadow:0 0 0 6px rgba(63,216,242,.08)}
+
+/* closing */
+.closing{position:relative;padding:clamp(100px,16vh,180px) 0 clamp(80px,12vh,120px);border-top:1px solid var(--line);margin-top:clamp(60px,10vh,100px);overflow:hidden}
+.closing::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(900px 500px at 50% 0%,rgba(63,216,242,.10),transparent 70%)}
+.closing h2{font-family:var(--display);font-weight:600;font-size:clamp(34px,5vw,64px);line-height:1.05;letter-spacing:-.02em;margin:22px 0 22px;max-width:900px;text-wrap:balance}
+.closing p.lead{color:var(--soft);font-weight:300;max-width:640px;font-size:18px;margin:0 0 56px}
+.cycle{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);margin-bottom:56px}
+.cycle a{padding:26px 22px 28px;border-right:1px solid var(--line);transition:background .35s}
+.cycle a:last-child{border-right:0}
+.cycle a:hover{background:linear-gradient(180deg,rgba(63,216,242,.07),transparent)}
+.cycle .n{font-family:var(--mono);font-size:12px;color:var(--cyan);letter-spacing:.14em}
+.cycle h3{font-family:var(--display);font-weight:500;font-size:20px;margin:10px 0 6px}
+.cycle p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px 40px}
+footer p{margin:0;max-width:640px}
+
+/* ---------- Description view ---------- */
+.desc-hero{position:relative;padding:calc(var(--nav-h) + clamp(48px,10vh,110px)) 0 clamp(56px,8vh,90px);overflow:hidden;isolation:isolate;border-bottom:1px solid var(--line)}
+.desc-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(800px 500px at 85% 10%,rgba(47,123,255,.18),transparent 60%),radial-gradient(600px 400px at 0% 100%,rgba(63,216,242,.10),transparent 60%)}
+.desc-hero .hero-grid{opacity:.4}
+.back{display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:14px;margin-bottom:44px;transition:color .25s}
+.back svg{width:18px;height:18px;transition:transform .3s var(--ease)}
+.back:hover{color:var(--cyan)}
+.back:hover svg{transform:translateX(-4px)}
+.desc-hero h1{font-family:var(--display);font-weight:600;font-size:clamp(52px,9vw,128px);line-height:.95;letter-spacing:-.04em;margin:22px 0 18px}
+.desc-hero h1 em{font-style:normal;color:var(--cyan)}
+.desc-hero .sub{font-family:var(--display);font-size:clamp(20px,2.4vw,30px);color:var(--soft);font-weight:400;max-width:820px;line-height:1.3;margin:0}
+
+.arch{margin-top:clamp(48px,8vh,80px);display:grid;gap:14px}
+.arch-row{display:grid;grid-template-columns:160px 1fr;gap:20px;align-items:stretch}
+.arch-label{display:flex;flex-direction:column;justify-content:center;color:var(--muted);border-right:1px solid var(--line-2);padding-right:18px}
+.arch-label b{font-family:var(--display);font-weight:500;color:var(--text);font-size:15px;text-transform:none;letter-spacing:0;margin-top:4px}
+.arch-digital{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.arch-chip{border:1px solid rgba(63,216,242,.35);background:linear-gradient(180deg,rgba(63,216,242,.08),rgba(63,216,242,.02));padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.arch-chip strong{font-weight:500}
+.arch-chip span{color:var(--muted);font-size:13px}
+.arch-phys{display:grid;grid-template-columns:repeat(5,1fr);position:relative;border:1px solid var(--line-2)}
+.arch-phys div{padding:16px 16px 18px;border-right:1px solid var(--line);position:relative}
+.arch-phys div:last-child{border-right:0}
+.arch-phys .mono{color:var(--cyan);font-size:11px}
+.arch-phys strong{display:block;font-weight:500;margin-top:4px;font-size:15px}
+.arch-phys div:not(:last-child)::after{content:"";position:absolute;right:-6px;top:50%;width:10px;height:10px;margin-top:-5px;border-top:1.5px solid var(--cyan);border-right:1.5px solid var(--cyan);transform:rotate(45deg);background:var(--bg);z-index:1}
+.arch-link{display:flex;justify-content:space-around;height:26px;margin-left:180px}
+.arch-link i{width:1px;background:repeating-linear-gradient(180deg,var(--cyan) 0 4px,transparent 4px 8px);opacity:.6}
+
+.desc-body{padding:clamp(70px,12vh,130px) 0}
+.desc-lead{font-family:var(--display);font-weight:400;font-size:clamp(22px,2.6vw,34px);line-height:1.35;letter-spacing:-.01em;color:var(--text);max-width:1020px;margin:0 0 clamp(60px,10vh,110px);text-wrap:pretty}
+.desc-lead::first-letter{color:var(--cyan)}
+.chapters{display:grid;gap:0;border-top:1px solid var(--line-2)}
+.chapter{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:40px;padding:clamp(34px,5vh,52px) 0;border-bottom:1px solid var(--line)}
+.chapter h3{font-family:var(--display);font-weight:500;font-size:clamp(22px,2vw,28px);margin:10px 0 0;line-height:1.2}
+.chapter .mono{color:var(--cyan)}
+.chapter p{margin:0;font-size:clamp(16.5px,1.35vw,19px);color:var(--soft);font-weight:300;line-height:1.75}
+.chapter .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.chapter .tags span{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);padding:6px 10px;border:1px solid var(--line-2);border-radius:999px}
+.manifesto{position:relative;margin-top:clamp(70px,12vh,120px);padding:clamp(44px,7vw,80px);border:1px solid var(--line-2);background:linear-gradient(135deg,rgba(47,123,255,.12),rgba(63,216,242,.05) 60%,transparent);overflow:hidden}
+.manifesto::before,.manifesto::after{content:"";position:absolute;width:28px;height:28px;border-color:var(--cyan);border-style:solid}
+.manifesto::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.manifesto::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.manifesto p{font-family:var(--display);font-size:clamp(22px,2.6vw,34px);line-height:1.35;margin:18px 0 36px;max-width:980px;letter-spacing:-.01em}
+.manifesto p em{font-style:normal;color:var(--cyan)}
+
+/* lightbox */
+.lightbox{position:fixed;inset:0;z-index:90;background:rgba(3,7,16,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;grid-template-rows:auto 1fr auto;opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s}
+.lightbox.open{opacity:1;visibility:visible}
+.lb-top{display:flex;justify-content:space-between;align-items:center;padding:16px var(--gutter);color:var(--muted)}
+.lb-close,.lb-nav{width:46px;height:46px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;transition:border-color .25s,color .25s;color:var(--text)}
+.lb-close:hover,.lb-nav:hover{border-color:var(--cyan);color:var(--cyan)}
+.lb-close svg,.lb-nav svg{width:18px;height:18px}
+.lb-stage{position:relative;display:grid;place-items:center;padding:0 calc(var(--gutter) + 56px);min-height:0}
+.lb-stage img{max-width:100%;max-height:calc(100vh - 170px);max-height:calc(100svh - 170px);object-fit:contain;background:var(--sheet);transform:scale(.97);transition:transform .4s var(--ease)}
+.lightbox.open .lb-stage img{transform:none}
+.lb-nav{position:absolute;top:50%;margin-top:-23px}
+.lb-prev{left:var(--gutter)}.lb-next{right:var(--gutter)}
+.lb-cap{padding:16px var(--gutter) 24px;text-align:center;color:var(--soft);font-size:14px}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1200px){
+  .rail{display:none}
+  .nav-links a span{display:none}
+}
+@media (max-width:1020px){
+  .nav-links{display:none}
+  .menu-btn{display:grid}
+  .nav-progress{display:block}
+  .hero-content{grid-template-columns:1fr;gap:40px}
+  .hero-meta{grid-template-columns:repeat(3,1fr);border-left:0;padding-left:0;border-top:1px solid var(--line-2);padding-top:24px}
+  .stage-grid,.stage.flip .stage-grid{grid-template-columns:1fr;gap:44px}
+  .stage.flip .stage-text{order:0}
+  .stage-media{order:-1}
+  .big-num{font-size:clamp(84px,18vw,140px)}
+  .chapter{grid-template-columns:1fr;gap:16px}
+  .arch-row{grid-template-columns:1fr;gap:10px}
+  .arch-label{border-right:0;padding-right:0;flex-direction:row;gap:12px;align-items:baseline;justify-content:flex-start}
+  .arch-link{margin-left:0}
+}
+@media (max-width:760px){
+  :root{--nav-h:64px}
+  .btn{height:42px;padding:0 16px;font-size:13.5px}
+  .brand{font-size:18px}
+  .hero{padding-top:calc(var(--nav-h) + 28px)}
+  .hero-meta{grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .meta-item .k{font-size:28px}
+  .meta-item .v{font-size:12.5px}
+  .journey ol{grid-template-columns:1fr;border-left:1px solid var(--line-2);margin-left:4px}
+  .journey{border-top:0}
+  .journey-flow{display:none}
+  .journey a{padding:12px 0 14px 22px}
+  .journey a::before{top:18px;left:-5px}
+  .journey .j-d{display:none}
+  .journey .j-t{display:inline;margin-left:10px}
+  .scroll-cue{display:none}
+  .comp li{grid-template-columns:44px 1fr}
+  .flow .flow-out{display:none}
+  .cycle{grid-template-columns:1fr}
+  .cycle a{border-right:0;border-bottom:1px solid var(--line);padding:20px 4px}
+  .cycle a:last-child{border-bottom:0}
+  .arch-digital{grid-template-columns:1fr}
+  .arch-phys{grid-template-columns:1fr}
+  .arch-phys div{border-right:0;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:baseline;padding:12px 16px}
+  .arch-phys div:last-child{border-bottom:0}
+  .arch-phys div:not(:last-child)::after{right:auto;left:22px;top:auto;bottom:-6px;margin:0;transform:rotate(135deg)}
+  .arch-phys strong{margin-top:0}
+  .arch-link{display:none}
+  .lb-stage{padding:0 var(--gutter)}
+  .lb-nav{top:auto;bottom:-62px;margin:0}
+  .lb-prev{left:var(--gutter)}.lb-next{right:var(--gutter)}
+  .lb-cap{padding:16px 72px 24px}
+  .logic-body{grid-template-columns:72px 1fr;gap:0 16px}
+  .thumbs{grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px}
+}
+@media (max-width:420px){
+  .btn-desc .full{display:none}
+  .hero-meta{grid-template-columns:1fr 1fr}
+  .hero-meta .meta-item:last-child{display:none}
+}
+@media (min-width:761px) and (max-height:760px){
+  .journey .j-d{display:none}
+  .scroll-cue{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+  .rain{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader-inner">
+    <div class="loader-word">Aqua<span style="color:var(--cyan)">Lift</span></div>
+    <div class="loader-bar"><i></i></div>
+  </div>
+</div>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="#top" class="brand" data-home aria-label="AquaLift home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".75" y=".75" width="30.5" height="30.5" rx="8" fill="none" stroke="rgba(150,190,235,.3)"/><path d="M16 5.5c4.4 5.8 7.2 9.6 7.2 13.4a7.2 7.2 0 0 1-14.4 0c0-3.8 2.8-7.6 7.2-13.4z" fill="none" stroke="#3fd8f2" stroke-width="1.8"/><path d="M16 23.2v-7.4m-3 3l3-3 3 3" fill="none" stroke="#3fd8f2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Aqua<b>Lift</b></span>
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Project stages">
+      <a href="#stage-a" data-stage="a"><span>A</span>Collection</a>
+      <a href="#stage-b" data-stage="b"><span>B</span>Filtration</a>
+      <a href="#stage-c" data-stage="c"><span>C</span>Storage</a>
+      <a href="#stage-d" data-stage="d"><span>D</span>Pumping</a>
+      <a href="#stage-e" data-stage="e"><span>E</span>Reuse</a>
+      <i class="nav-indicator" id="navIndicator"></i>
+    </nav>
+    <div class="nav-right">
+      <a href="#description" class="btn btn-primary btn-desc" id="descBtn">
+        <span>Description</span>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <button class="menu-btn" id="menuBtn" aria-label="Open stage menu" aria-expanded="false" aria-controls="mobileMenu"><i></i></button>
+    </div>
+  </div>
+  <i class="nav-progress" id="navProgress"></i>
+</header>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#stage-a">Water Collection <span>A · 01</span></a>
+  <a href="#stage-b">Filtration <span>B · 02</span></a>
+  <a href="#stage-c">Underground Storage <span>C · 03</span></a>
+  <a href="#stage-d">Smart Pumping <span>D · 04</span></a>
+  <a href="#stage-e">Water Reuse <span>E · 05</span></a>
+  <a href="#description">Project Description <span>→</span></a>
+</div>
+
+<!-- progress rail -->
+<aside class="rail" id="rail" aria-label="Stage progress">
+  <div class="rail-track"><i class="rail-fill" id="railFill"></i></div>
+  <ol>
+    <li><a href="#stage-a" data-stage="a"><span class="lbl">A · Collection</span><i class="dot"></i></a></li>
+    <li><a href="#stage-b" data-stage="b"><span class="lbl">B · Filtration</span><i class="dot"></i></a></li>
+    <li><a href="#stage-c" data-stage="c"><span class="lbl">C · Storage</span><i class="dot"></i></a></li>
+    <li><a href="#stage-d" data-stage="d"><span class="lbl">D · Pumping</span><i class="dot"></i></a></li>
+    <li><a href="#stage-e" data-stage="e"><span class="lbl">E · Reuse</span><i class="dot"></i></a></li>
+  </ol>
+</aside>
+
+<!-- ============ HOME VIEW ============ -->
+<main id="home" class="view">
+
+  <section class="hero" id="top">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="rain" id="rain"></div>
+    <div class="wrap">
+      <div class="hero-content">
+        <div>
+          <span class="eyebrow reveal">Smart Urban Rainwater Collection &amp; Management</span>
+          <h1 class="reveal d1">Rain that floods the street becomes <em>a managed resource.</em></h1>
+          <p class="hero-lead reveal d2">AquaLift collects rainwater that accumulates on streets and public spaces, filters it, stores it underground, moves it with sensor-driven pumps and returns it to the city for non-potable reuse.</p>
+          <div class="hero-actions reveal d3">
+            <a href="#stage-a" class="btn btn-primary">Follow the water
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#description" class="btn btn-ghost">Read the project overview</a>
+          </div>
+        </div>
+        <div class="hero-meta reveal d4">
+          <div class="meta-item"><div class="k">05<sup>stages</sup></div><div class="v">From street inlet to reuse</div></div>
+          <div class="meta-item"><div class="k">IoT<sup>+AI</sup></div><div class="v">Level &amp; flow monitoring, optimised pumping</div></div>
+          <div class="meta-item"><div class="k">Reuse</div><div class="v">Irrigation and green-space maintenance</div></div>
+        </div>
+      </div>
+
+      <nav class="journey reveal d4" aria-label="The water journey">
+        <i class="journey-flow"></i>
+        <ol>
+          <li><a href="#stage-a"><span class="j-n">A · 01</span><span class="j-t">Collection</span><span class="j-d">Inlets &amp; drainage channels</span></a></li>
+          <li><a href="#stage-b"><span class="j-n">B · 02</span><span class="j-t">Filtration</span><span class="j-d">Debris &amp; sediment removal</span></a></li>
+          <li><a href="#stage-c"><span class="j-n">C · 03</span><span class="j-t">Storage</span><span class="j-d">Underground modular tanks</span></a></li>
+          <li><a href="#stage-d"><span class="j-n">D · 04</span><span class="j-t">Smart Pumping</span><span class="j-d">Sensor-driven transfer</span></a></li>
+          <li><a href="#stage-e"><span class="j-n">E · 05</span><span class="j-t">Reuse</span><span class="j-d">Non-potable applications</span></a></li>
+        </ol>
+      </nav>
+    </div>
+    <div class="scroll-cue mono" aria-hidden="true">Scroll <i></i></div>
+  </section>
+
+  <div class="stages" id="stages">
+
+    <!-- ===== STAGE A ===== -->
+    <section class="stage" id="stage-a" data-stage="a" aria-labelledby="ta">
+      <div class="wrap">
+        <div class="stage-head mono reveal"><span class="tag">Stage A</span><span class="rule"></span><span>01 / 05</span></div>
+        <div class="stage-grid">
+          <div class="stage-text">
+            <div class="big-num reveal" aria-hidden="true">01</div>
+            <h2 id="ta" class="reveal d1"><small>Stage A</small>Water Collection System</h2>
+            <div class="purpose reveal d2"><span class="mono">Purpose</span><p>Collect rainwater accumulated on streets, pavements and other urban surfaces.</p></div>
+            <p class="explain reveal d2">Runoff follows the natural slope of the street toward the points where it would normally pool — kerb lines, low points of roads, squares and pedestrian areas. AquaLift places specially designed collection points exactly there. Grated inlets admit the water while holding back large objects, linear drainage channels intercept sheet flow across wide paved surfaces, and underground collection chambers gather everything and direct it by gravity into the system.</p>
+            <div class="reveal d3">
+              <div class="comp-title mono"><span>Physical components</span><span>03</span></div>
+              <ul class="comp">
+                <li><span class="ci">A.1</span><div><strong>Stormwater collection inlets</strong><span>Grated openings at kerbs and low points that let runoff in and keep large debris out.</span></div></li>
+                <li><span class="ci">A.2</span><div><strong>Drainage channels</strong><span>Linear surface channels that capture water flowing across pavements and public spaces.</span></div></li>
+                <li><span class="ci">A.3</span><div><strong>Water collection points</strong><span>Underground chambers that receive the collected flow and route it to filtration.</span></div></li>
+              </ul>
+            </div>
+          </div>
+          <div class="stage-media reveal d1" data-gallery>
+            <figure class="figure">
+              <button class="frame" data-fit="cover" aria-label="Enlarge image"><img src="assets/a1-inlet-installation.webp" alt="Excavator lowering a precast concrete collection chamber into a street-side trench" width="1988" height="1324" loading="lazy" decoding="async"><i class="shade"></i><span class="zoom-hint"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 2l-5 5M2 14l5-5" stroke-linecap="round"/></svg>Enlarge</span></button>
+              <figcaption class="figcap"><span><span class="fig-id">FIG. A.<b class="fi">1</b></span><span class="cap-text">Installing a precast collection chamber under an urban street</span></span><span class="count"></span></figcaption>
+            </figure>
+            <div class="thumbs">
+              <button class="thumb active" data-src="assets/a1-inlet-installation.webp" data-fit="cover" data-cap="Installing a precast collection chamber under an urban street" aria-label="Show image 1"><img src="assets/a1-inlet-installation.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/a2-surface-grate-inlet.png" data-fit="contain" data-cap="Surface grate inlet receiving runoff, with sediment and filtration chambers below" aria-label="Show image 2"><img src="assets/a2-surface-grate-inlet.png" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/a3-collection-chamber.webp" data-fit="cover" data-cap="Underground collection chamber with inlet screen catching leaves and debris" aria-label="Show image 3"><img src="assets/a3-collection-chamber.webp" alt="" loading="lazy"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flow" aria-hidden="true"><div class="pipe"></div><i class="node"></i><span class="flow-out mono">Raw runoff</span><span class="flow-lbl mono">Next<b>To filtration</b></span></div>
+
+    <!-- ===== STAGE B ===== -->
+    <section class="stage flip" id="stage-b" data-stage="b" aria-labelledby="tb">
+      <div class="wrap">
+        <div class="stage-head mono reveal"><span class="tag">Stage B</span><span class="rule"></span><span>02 / 05</span></div>
+        <div class="stage-grid">
+          <div class="stage-text">
+            <div class="big-num reveal" aria-hidden="true">02</div>
+            <h2 id="tb" class="reveal d1"><small>Stage B</small>Filtration System</h2>
+            <div class="purpose reveal d2"><span class="mono">Purpose</span><p>Remove large debris, leaves, sediments, sand and other unwanted materials from collected rainwater.</p></div>
+            <p class="explain reveal d2">Street runoff carries leaves, plastic, sand and fine sediment. Before it is stored, the water passes through a preliminary filtration train. Screens catch floating and coarse debris, separation chambers slow the flow so heavier particles settle out under gravity, and filter media retain the finer material. This protects tanks and pumps from clogging and delivers cleaner water that is ready for storage or further treatment.</p>
+            <div class="reveal d3">
+              <div class="comp-title mono"><span>Physical components</span><span>03</span></div>
+              <ul class="comp">
+                <li><span class="ci">B.1</span><div><strong>Debris collection filters</strong><span>Screens and baskets that capture leaves, litter and other coarse material at the entry.</span></div></li>
+                <li><span class="ci">B.2</span><div><strong>Sediment separation chambers</strong><span>Calm or vortex chambers in which sand and grit settle to a removable sump.</span></div></li>
+                <li><span class="ci">B.3</span><div><strong>Filtration units</strong><span>Layered gravel and sand media that hold back fine particles before storage.</span></div></li>
+              </ul>
+            </div>
+          </div>
+          <div class="stage-media reveal d1" data-gallery>
+            <figure class="figure">
+              <button class="frame" data-fit="contain" aria-label="Enlarge image"><img src="assets/b1-filter-unit.webp" alt="Cutaway of a rainwater filter unit with inlet, cascade screen, storage outlet and waste outlet" width="1334" height="1316" loading="lazy" decoding="async"><i class="shade"></i><span class="zoom-hint"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 2l-5 5M2 14l5-5" stroke-linecap="round"/></svg>Enlarge</span></button>
+              <figcaption class="figcap"><span><span class="fig-id">FIG. B.<b class="fi">1</b></span><span class="cap-text">Filter unit: coarse dirt goes to waste, filtered water goes to storage</span></span><span class="count"></span></figcaption>
+            </figure>
+            <div class="thumbs">
+              <button class="thumb active" data-src="assets/b1-filter-unit.webp" data-fit="contain" data-cap="Filter unit: coarse dirt goes to waste, filtered water goes to storage" aria-label="Show image 1"><img src="assets/b1-filter-unit.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/b2-vortex-separator.webp" data-fit="contain" data-cap="Vortex separator: swirling flow drops sediment into a storage sump" aria-label="Show image 2"><img src="assets/b2-vortex-separator.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/b3-debris-screen.webp" data-fit="contain" data-cap="Treatment chamber with debris screen and submerged flow-control outlet" aria-label="Show image 3"><img src="assets/b3-debris-screen.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/b4-sedimentation-filter-bed.webp" data-fit="contain" data-cap="Sedimentation chamber followed by a gravel and sand filter bed" aria-label="Show image 4"><img src="assets/b4-sedimentation-filter-bed.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/b5-separator-chamber.webp" data-fit="contain" data-cap="Separator insert inside a precast concrete chamber" aria-label="Show image 5"><img src="assets/b5-separator-chamber.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/b6-sand-filter-vault.webp" data-fit="contain" data-cap="Sand filter vault: sediment chamber, filter gravel, sand and perforated underdrain" aria-label="Show image 6"><img src="assets/b6-sand-filter-vault.webp" alt="" loading="lazy"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flow" aria-hidden="true"><div class="pipe"></div><i class="node"></i><span class="flow-out mono">Pre-filtered water</span><span class="flow-lbl mono">Next<b>To storage</b></span></div>
+
+    <!-- ===== STAGE C ===== -->
+    <section class="stage" id="stage-c" data-stage="c" aria-labelledby="tc">
+      <div class="wrap">
+        <div class="stage-head mono reveal"><span class="tag">Stage C</span><span class="rule"></span><span>03 / 05</span></div>
+        <div class="stage-grid">
+          <div class="stage-text">
+            <div class="big-num reveal" aria-hidden="true">03</div>
+            <h2 id="tc" class="reveal d1"><small>Stage C</small>Underground Storage</h2>
+            <div class="purpose reveal d2"><span class="mono">Purpose</span><p>Temporarily store collected rainwater in underground storage modules.</p></div>
+            <p class="explain reveal d2">Filtered water is held in modular tanks installed below streets and public spaces, where they take up no surface area. During heavy rain these modules absorb the peak volume that the existing drainage network cannot accept at once, then release or supply it gradually. This flattens the load on city drains and keeps water off the surface. Level sensors report how full each module is at every moment, giving the control system the data it needs for the next stage.</p>
+            <div class="reveal d3">
+              <div class="comp-title mono"><span>Physical components</span><span>03</span></div>
+              <ul class="comp">
+                <li><span class="ci">C.1</span><div><strong>Underground modular storage tanks</strong><span>Load-bearing modules that can be sized to the catchment and extended as needed.</span></div></li>
+                <li><span class="ci">C.2</span><div><strong>Water storage chambers</strong><span>Sealed chambers that hold water until it is pumped onward or reused.</span></div></li>
+                <li><span class="ci">C.3</span><div><strong>Water level monitoring sensors</strong><span>Continuous level readings, for example ultrasonic or float-type sensors.</span></div></li>
+              </ul>
+            </div>
+          </div>
+          <div class="stage-media reveal d1" data-gallery>
+            <figure class="figure">
+              <button class="frame" data-fit="contain" aria-label="Enlarge image"><img src="assets/c1-underground-tank.png" alt="Cutaway of an underground reinforced-concrete storage tank with filter, support platform and filter granulate" width="1106" height="672" loading="lazy" decoding="async"><i class="shade"></i><span class="zoom-hint"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 2l-5 5M2 14l5-5" stroke-linecap="round"/></svg>Enlarge</span></button>
+              <figcaption class="figcap"><span><span class="fig-id">FIG. C.<b class="fi">1</b></span><span class="cap-text">Underground concrete storage module with trafficable cover and filter layer</span></span><span class="count"></span></figcaption>
+            </figure>
+            <div class="thumbs">
+              <button class="thumb active" data-src="assets/c1-underground-tank.png" data-fit="contain" data-cap="Underground concrete storage module with trafficable cover and filter layer" aria-label="Show image 1"><img src="assets/c1-underground-tank.png" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/c3-storage-plan.webp" data-fit="contain" data-cap="Plan and section: sediment chamber, filter chamber and underdrain outlet" aria-label="Show image 2"><img src="assets/c3-storage-plan.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/c2-sand-filter-section.png" data-fit="contain" data-cap="Below-ground section: sand and gravel layers with perforated pipe above the water table" aria-label="Show image 3"><img src="assets/c2-sand-filter-section.png" alt="" loading="lazy"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flow" aria-hidden="true"><div class="pipe"></div><i class="node"></i><span class="flow-out mono">Stored volume</span><span class="flow-lbl mono">Next<b>To smart pumping</b></span></div>
+
+    <!-- ===== STAGE D ===== -->
+    <section class="stage flip" id="stage-d" data-stage="d" aria-labelledby="td">
+      <div class="wrap">
+        <div class="stage-head mono reveal"><span class="tag">Stage D</span><span class="rule"></span><span>04 / 05</span></div>
+        <div class="stage-grid">
+          <div class="stage-text">
+            <div class="big-num reveal" aria-hidden="true">04</div>
+            <h2 id="td" class="reveal d1"><small>Stage D</small>Smart Pumping System</h2>
+            <div class="purpose reveal d2"><span class="mono">Purpose</span><p>Automatically transfer collected water to suitable drainage infrastructure or designated storage facilities.</p></div>
+            <p class="explain reveal d2">Pumps run on sensor data, not manual control. When the level in storage reaches an upper threshold the pumps start; when it falls to a lower threshold they stop. Flow sensors confirm that water is actually moving, so blockages or faults are detected early. Readings are sent to the AquaLift management layer, where AI analyses them over time to optimise pumping — for example, freeing capacity before heavy rainfall or holding water while downstream drains are already under load.</p>
+            <div class="reveal d3">
+              <div class="comp-title mono"><span>Physical components</span><span>04</span></div>
+              <ul class="comp">
+                <li><span class="ci">D.1</span><div><strong>Water pumps</strong><span>Submersible pumps that move water out of storage chambers.</span></div></li>
+                <li><span class="ci">D.2</span><div><strong>Water level sensors</strong><span>Define the start and stop points for each pumping cycle.</span></div></li>
+                <li><span class="ci">D.3</span><div><strong>Automated pumping mechanisms</strong><span>Controllers that switch pumps on and off according to levels and system state.</span></div></li>
+                <li><span class="ci">D.4</span><div><strong>Flow monitoring sensors</strong><span>Measure the transferred flow and confirm that the system is working correctly.</span></div></li>
+              </ul>
+            </div>
+            <div class="logic reveal d3" aria-label="Pump control logic">
+              <div class="logic-head mono"><span>Control logic</span><span class="live"><i></i>Auto</span></div>
+              <div class="logic-body">
+                <div class="tank" aria-hidden="true"><i class="water"></i><i class="mark h"><span>HIGH</span></i><i class="mark l"><span>LOW</span></i></div>
+                <ul class="rules">
+                  <li><code>level ≥ HIGH</code><b class="on">PUMP ON</b></li>
+                  <li><code>level ≤ LOW</code><b class="off">PUMP OFF</b></li>
+                  <li><code>pump on · flow = 0</code><b class="alert">ALERT</b></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="stage-media reveal d1" data-gallery>
+            <figure class="figure">
+              <button class="frame" data-fit="contain" aria-label="Enlarge image"><img src="assets/d1-smart-pumping.webp" alt="Two tanks with float level switches, pump assembly, filter and an electronic controller connected by cables" width="1558" height="1324" loading="lazy" decoding="async"><i class="shade"></i><span class="zoom-hint"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 2l-5 5M2 14l5-5" stroke-linecap="round"/></svg>Enlarge</span></button>
+              <figcaption class="figcap"><span><span class="fig-id">FIG. D.<b class="fi">1</b></span><span class="cap-text">Pump assembly and float-level sensors wired to an automatic controller</span></span><span class="count"></span></figcaption>
+            </figure>
+            <div class="thumbs">
+              <button class="thumb active" data-src="assets/d1-smart-pumping.webp" data-fit="contain" data-cap="Pump assembly and float-level sensors wired to an automatic controller" aria-label="Show image 1"><img src="assets/d1-smart-pumping.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/d2-iot-monitoring.webp" data-fit="cover" data-cap="IoT level monitoring: ESP32 with ultrasonic sensor reporting tank level to a mobile dashboard" aria-label="Show image 2"><img src="assets/d2-iot-monitoring.webp" alt="" loading="lazy"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flow" aria-hidden="true"><div class="pipe"></div><i class="node"></i><span class="flow-out mono">Managed transfer</span><span class="flow-lbl mono">Next<b>To reuse</b></span></div>
+
+    <!-- ===== STAGE E ===== -->
+    <section class="stage" id="stage-e" data-stage="e" aria-labelledby="te">
+      <div class="wrap">
+        <div class="stage-head mono reveal"><span class="tag">Stage E</span><span class="rule"></span><span>05 / 05</span></div>
+        <div class="stage-grid">
+          <div class="stage-text">
+            <div class="big-num reveal" aria-hidden="true">05</div>
+            <h2 id="te" class="reveal d1"><small>Stage E</small>Water Reuse</h2>
+            <div class="purpose reveal d2"><span class="mono">Purpose</span><p>Reuse collected rainwater for suitable non-potable purposes after appropriate filtration and water quality assessment.</p></div>
+            <p class="explain reveal d2">Instead of simply being discharged, part of the collected water becomes a resource for the city. After appropriate filtration and a water quality assessment, it can be supplied wherever drinking-water quality is not required. Every litre used this way is a litre that does not have to come from the municipal supply — turning a problem on the street into value for parks, landscapes and green infrastructure.</p>
+            <div class="reveal d3">
+              <div class="comp-title mono"><span>Potential applications</span><span>04</span></div>
+              <ul class="comp">
+                <li><span class="ci">E.1</span><div><strong>Urban green space irrigation</strong><span>Watering public lawns, street trees and planted areas.</span></div></li>
+                <li><span class="ci">E.2</span><div><strong>Park maintenance</strong><span>Supplying water for the upkeep of parks and recreational areas.</span></div></li>
+                <li><span class="ci">E.3</span><div><strong>Landscape irrigation</strong><span>Irrigation of landscaped zones around public and residential buildings.</span></div></li>
+                <li><span class="ci">E.4</span><div><strong>Other suitable technical applications</strong><span>Further uses where non-potable water is acceptable, subject to quality checks.</span></div></li>
+              </ul>
+            </div>
+            <div class="note reveal d3"><span class="mono">Non-potable</span><span>Reused water is intended only for purposes that do not require drinking-water quality, and only after filtration and quality assessment.</span></div>
+          </div>
+          <div class="stage-media reveal d1" data-gallery>
+            <figure class="figure">
+              <button class="frame" data-fit="contain" aria-label="Enlarge image"><img src="assets/e1-rainwater-reuse.webp" alt="Rainwater harvesting system with leaf filter, first-flush device, calm inlet, chlorine dispenser, floating intake and filter train" width="1564" height="1202" loading="lazy" decoding="async"><i class="shade"></i><span class="zoom-hint"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 2l-5 5M2 14l5-5" stroke-linecap="round"/></svg>Enlarge</span></button>
+              <figcaption class="figcap"><span><span class="fig-id">FIG. E.<b class="fi">1</b></span><span class="cap-text">Reference system: stored rainwater treated through a filter train before use</span></span><span class="count"></span></figcaption>
+            </figure>
+            <div class="thumbs">
+              <button class="thumb active" data-src="assets/e1-rainwater-reuse.webp" data-fit="contain" data-cap="Reference system: stored rainwater treated through a filter train before use" aria-label="Show image 1"><img src="assets/e1-rainwater-reuse.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/e2-filter-column.webp" data-fit="contain" data-cap="First-flush diverter and multi-layer filter column: pebble, gravel, sand, activated carbon" aria-label="Show image 2"><img src="assets/e2-filter-column.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/e3-first-flush.webp" data-fit="contain" data-cap="First-flush principle: the most contaminated initial water is diverted before storage" aria-label="Show image 3"><img src="assets/e3-first-flush.webp" alt="" loading="lazy"></button>
+              <button class="thumb" data-src="assets/e4-prototype-model.webp" data-fit="cover" data-cap="Physical demonstration model: collection, filter and storage" aria-label="Show image 4"><img src="assets/e4-prototype-model.webp" alt="" loading="lazy"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="closing">
+    <div class="wrap">
+      <span class="eyebrow reveal">The complete cycle</span>
+      <h2 class="reveal d1">From an accumulation problem on the street to a resource for the city.</h2>
+      <p class="lead reveal d2">Physical infrastructure handles the water. IoT sensors and AI handle the decisions. Together, the five stages form one continuous system.</p>
+      <div class="cycle reveal d2">
+        <a href="#stage-a"><span class="n">A · 01</span><h3>Collect</h3><p>Inlets and channels capture surface runoff.</p></a>
+        <a href="#stage-b"><span class="n">B · 02</span><h3>Filter</h3><p>Debris and sediment are separated.</p></a>
+        <a href="#stage-c"><span class="n">C · 03</span><h3>Store</h3><p>Underground modules absorb the peak.</p></a>
+        <a href="#stage-d"><span class="n">D · 04</span><h3>Pump</h3><p>Sensors and AI drive the transfer.</p></a>
+        <a href="#stage-e"><span class="n">E · 05</span><h3>Reuse</h3><p>Water returns to green spaces.</p></a>
+      </div>
+      <a href="#description" class="btn btn-primary reveal d3">Read the full project description
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </section>
+</main>
+
+<!-- ============ DESCRIPTION VIEW ============ -->
+<main id="description" class="view" hidden>
+  <section class="desc-hero">
+    <div class="hero-grid"></div>
+    <div class="wrap">
+      <a href="#top" class="back" data-home>
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 9H3M7 5L3 9l4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to the five stages
+      </a>
+      <span class="eyebrow">Project overview</span>
+      <h1>Aqua<em>Lift</em></h1>
+      <p class="sub">Smart Urban Rainwater Collection and Management System</p>
+
+      <div class="arch" aria-label="System architecture">
+        <div class="arch-row">
+          <div class="arch-label mono">Digital layer<b>Monitoring &amp; decisions</b></div>
+          <div class="arch-digital">
+            <div class="arch-chip"><strong>IoT sensors</strong><span>Water level · Flow conditions</span></div>
+            <div class="arch-chip"><strong>AI-powered management</strong><span>Optimised pumping · Performance</span></div>
+          </div>
+        </div>
+        <div class="arch-link" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="arch-row">
+          <div class="arch-label mono">Physical layer<b>Engineering infrastructure</b></div>
+          <div class="arch-phys">
+            <div><span class="mono">A</span><strong>Collection</strong></div>
+            <div><span class="mono">B</span><strong>Filtration</strong></div>
+            <div><span class="mono">C</span><strong>Storage</strong></div>
+            <div><span class="mono">D</span><strong>Pumping</strong></div>
+            <div><span class="mono">E</span><strong>Reuse</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="desc-body">
+    <div class="wrap">
+      <p class="desc-lead">AquaLift is an innovative urban water management solution designed to address the problem of rainwater accumulation in streets, residential areas, public spaces and other urban environments.</p>
+
+      <div class="chapters">
+        <article class="chapter">
+          <div><span class="mono">01 — System</span><h3>One integrated system</h3></div>
+          <div>
+            <p>The system combines physical water collection infrastructure, filtration units, underground storage modules, automated pumping mechanisms, IoT sensors and AI-powered management.</p>
+            <div class="tags"><span>Collection</span><span>Filtration</span><span>Storage</span><span>Pumping</span><span>IoT</span><span>AI</span></div>
+          </div>
+        </article>
+        <article class="chapter">
+          <div><span class="mono">02 — Process</span><h3>How the water moves</h3></div>
+          <div><p>Rainwater accumulated on urban surfaces is collected through specially designed drainage inlets and directed into filtration units, where debris and sediments are separated. The collected water is then transferred to underground storage tanks or safely redirected to suitable drainage infrastructure using automated pumping systems.</p></div>
+        </article>
+        <article class="chapter">
+          <div><span class="mono">03 — Intelligence</span><h3>Sensors and AI</h3></div>
+          <div><p>IoT sensors continuously monitor water levels and flow conditions, while AI analyzes the collected data to optimize pumping operations, monitor system performance and improve water management efficiency.</p></div>
+        </article>
+        <article class="chapter">
+          <div><span class="mono">04 — Reuse</span><h3>Water as a resource</h3></div>
+          <div><p>An additional objective is to reuse collected rainwater for suitable non-potable purposes, such as irrigation and maintaining urban green spaces, following appropriate filtration and water quality assessment.</p></div>
+        </article>
+      </div>
+
+      <div class="manifesto">
+        <span class="eyebrow">Impact</span>
+        <p>By combining physical engineering with intelligent technologies, AquaLift aims to <em>reduce urban water accumulation</em>, <em>improve stormwater management</em> and <em>promote more sustainable use of water resources.</em></p>
+        <a href="#top" class="btn btn-primary" data-home>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" style="transform:scaleX(-1)"><path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back to the five stages
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><strong style="color:var(--text);font-family:var(--display)">AquaLift</strong> — Smart Urban Rainwater Collection and Management System · 2026</span>
+    <p>Some figures are reference illustrations of existing stormwater and rainwater technologies, used to explain the AquaLift concept.</p>
+  </div>
+</footer>
+
+<!-- lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer" aria-hidden="true">
+  <div class="lb-top"><span class="mono" id="lbCount"></span>
+    <button class="lb-close" id="lbClose" aria-label="Close"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l10 10M14 4L4 14" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="lb-stage">
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous image"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4L6 9l5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <img id="lbImg" alt="">
+    <button class="lb-nav lb-next" id="lbNext" aria-label="Next image"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 4l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+  <div class="lb-cap" id="lbCap"></div>
+</div>
+
+<script>
+(function(){
+  var $ = function(s,c){return (c||document).querySelector(s)};
+  var $$ = function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* loader */
+  var loader = $('#loader');
+  function hideLoader(){ loader.classList.add('done'); }
+  window.addEventListener('load', function(){ setTimeout(hideLoader, 350); });
+  setTimeout(hideLoader, 2200);
+
+  /* rain */
+  if(!reduce){
+    var rain = $('#rain'), n = window.innerWidth < 760 ? 18 : 36;
+    for(var i=0;i<n;i++){
+      var d = document.createElement('i');
+      d.style.left = (Math.random()*100)+'%';
+      d.style.height = (50+Math.random()*80)+'px';
+      d.style.animationDuration = (1.6+Math.random()*1.8)+'s';
+      d.style.animationDelay = (-Math.random()*3)+'s';
+      d.style.opacity = (.2+Math.random()*.5);
+      rain.appendChild(d);
+    }
+  }
+
+  /* reveal */
+  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{rootMargin:'0px 0px -8% 0px',threshold:.08}) : null;
+  function observeReveals(scope){
+    $$('.reveal:not(.in)',scope).forEach(function(el){ io ? io.observe(el) : el.classList.add('in'); });
+  }
+  observeReveals(document);
+
+  /* nav solid + progress + active stage */
+  var nav = $('#nav'), rail = $('#rail'), railFill = $('#railFill'), navProg = $('#navProgress');
+  var stages = $$('.stage'), stagesWrap = $('#stages');
+  var navLinks = $$('#navLinks a'), railLinks = $$('#rail a'), indicator = $('#navIndicator');
+  var current = null, view = 'home';
+
+  function moveIndicator(){
+    var a = navLinks.filter(function(l){return l.classList.contains('active')})[0];
+    if(!a || view!=='home'){ indicator.style.opacity = 0; return; }
+    indicator.style.opacity = 1;
+    indicator.style.width = (a.offsetWidth-28)+'px';
+    indicator.style.transform = 'translateX('+(a.offsetLeft+14)+'px)';
+  }
+  function setActive(id){
+    if(id===current) return; current = id;
+    var idx = ['a','b','c','d','e'].indexOf(id);
+    navLinks.concat(railLinks).forEach(function(l){
+      var li = ['a','b','c','d','e'].indexOf(l.dataset.stage);
+      l.classList.toggle('active', l.dataset.stage===id);
+      l.classList.toggle('passed', idx>-1 && li<idx);
+    });
+    moveIndicator();
+  }
+  function onScroll(){
+    var y = window.scrollY, vh = window.innerHeight;
+    nav.classList.toggle('solid', y > 30 || view!=='home');
+    if(view!=='home'){ return; }
+    var top = stagesWrap.offsetTop, h = stagesWrap.offsetHeight;
+    var p = Math.min(1, Math.max(0, (y + vh*.5 - top) / h));
+    railFill.style.transform = 'scaleY('+p+')';
+    navProg.style.transform = 'scaleX('+p+')';
+    rail.classList.toggle('show', y + vh*.6 > top && y + vh*.4 < top + h);
+    var act = null;
+    // Active = last stage whose top has passed the middle of the viewport (stays lit across connectors).
+    stages.forEach(function(s){ if(s.getBoundingClientRect().top < vh*.5) act = s.dataset.stage; });
+    setActive(act);
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function(){ if(!ticking){ requestAnimationFrame(function(){ onScroll(); ticking=false; }); ticking = true; } }, {passive:true});
+  window.addEventListener('resize', function(){ onScroll(); moveIndicator(); });
+
+  /* mobile menu */
+  var menuBtn = $('#menuBtn');
+  function closeMenu(){ document.body.classList.remove('menu-open'); menuBtn.setAttribute('aria-expanded','false'); }
+  menuBtn.addEventListener('click', function(){
+    var open = document.body.classList.toggle('menu-open');
+    menuBtn.setAttribute('aria-expanded', open ? 'true':'false');
+  });
+  $$('#mobileMenu a').forEach(function(a){ a.addEventListener('click', closeMenu); });
+
+  /* router: #description = overview view, everything else = home */
+  var home = $('#home'), desc = $('#description'), descBtn = $('#descBtn');
+  var homeScroll = 0;
+  function show(next, target){
+    var cur = next==='desc' ? home : desc, nxt = next==='desc' ? desc : home;
+    if(view === (next==='desc'?'desc':'home')){
+      if(target) scrollToEl(target);
+      return;
+    }
+    if(next==='desc') homeScroll = window.scrollY;
+    cur.classList.add('leaving');
+    setTimeout(function(){
+      cur.hidden = true; cur.classList.remove('leaving');
+      nxt.hidden = false; nxt.classList.add('entering');
+      view = next==='desc' ? 'desc' : 'home';
+      descBtn.classList.toggle('is-active', view==='desc');
+      if(view==='desc'){ window.scrollTo({top:0,behavior:'instant'}); setActive(null); rail.classList.remove('show'); }
+      else if(target){ scrollToEl(target, true); }
+      else { window.scrollTo({top:homeScroll,behavior:'instant'}); }
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ nxt.classList.remove('entering'); }); });
+      observeReveals(nxt);
+      onScroll();
+    }, reduce ? 0 : 280);
+  }
+  function scrollToEl(el, instant){
+    var y = el.getBoundingClientRect().top + window.scrollY - (el.id==='top'?0:0);
+    window.scrollTo({top:y, behavior: instant||reduce ? 'instant' : 'smooth'});
+  }
+  function route(){
+    var h = location.hash.replace('#','');
+    if(h==='description'){ show('desc'); return; }
+    var t = h ? document.getElementById(h) : null;
+    if(t && desc.contains(t)) t = null;
+    show('home', t);
+  }
+  // Intercept in-page links so the transition runs even when the hash is unchanged.
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[href^="#"]');
+    if(!a) return;
+    var h = a.getAttribute('href');
+    e.preventDefault();
+    if(h==='#description'){
+      if(location.hash!=='#description') history.pushState(null,'','#description');
+      show('desc');
+    } else if(a.hasAttribute('data-home') && view==='desc' && h==='#top'){
+      history.pushState(null,'',location.pathname);
+      show('home');
+    } else {
+      var t = document.getElementById(h.slice(1));
+      history.pushState(null,'', h==='#top' ? location.pathname : h);
+      if(view==='desc') show('home', t); else if(t) scrollToEl(t);
+    }
+  });
+  window.addEventListener('popstate', route);
+  window.addEventListener('hashchange', route);
+
+  /* galleries */
+  var galleries = $$('[data-gallery]').map(function(g){
+    var frame = $('.frame', g), img = $('img', frame), thumbs = $$('.thumb', g);
+    var cap = $('.cap-text', g), fi = $('.fi', g), count = $('.count', g);
+    var state = {g:g, idx:0, thumbs:thumbs};
+    function set(i){
+      if(i===state.idx) return;
+      state.idx = i;
+      var t = thumbs[i];
+      thumbs.forEach(function(x,j){ x.classList.toggle('active', j===i); });
+      img.classList.add('swap');
+      setTimeout(function(){
+        img.src = t.dataset.src;
+        frame.dataset.fit = t.dataset.fit;
+        img.alt = t.dataset.cap;
+        cap.textContent = t.dataset.cap;
+        fi.textContent = i+1;
+        count.textContent = (i+1)+' / '+thumbs.length;
+        var done = function(){ img.classList.remove('swap'); };
+        if(img.complete) done(); else img.onload = done;
+      }, reduce?0:220);
+    }
+    count.textContent = '1 / '+thumbs.length;
+    if(thumbs.length<2) $('.thumbs', g).style.display='none';
+    thumbs.forEach(function(t,i){ t.addEventListener('click', function(){ set(i); }); });
+    frame.addEventListener('click', function(){ openLB(state); });
+    state.set = set;
+    return state;
+  });
+
+  /* lightbox */
+  var lb = $('#lightbox'), lbImg = $('#lbImg'), lbCap = $('#lbCap'), lbCount = $('#lbCount'), active = null, lastFocus = null;
+  function renderLB(){
+    var t = active.thumbs[active.idx];
+    lbImg.src = t.dataset.src; lbImg.alt = t.dataset.cap;
+    lbCap.textContent = t.dataset.cap;
+    lbCount.textContent = (active.idx+1)+' / '+active.thumbs.length;
+    $('#lbPrev').style.visibility = $('#lbNext').style.visibility = active.thumbs.length>1 ? 'visible':'hidden';
+  }
+  function openLB(state){
+    active = state; lastFocus = document.activeElement; renderLB();
+    lb.classList.add('open'); lb.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden'; $('#lbClose').focus();
+  }
+  function closeLB(){
+    lb.classList.remove('open'); lb.setAttribute('aria-hidden','true');
+    document.body.style.overflow=''; if(lastFocus) lastFocus.focus();
+  }
+  function step(d){
+    var n = active.thumbs.length, i = (active.idx + d + n) % n;
+    active.set(i); renderLB();
+  }
+  $('#lbClose').addEventListener('click', closeLB);
+  $('#lbPrev').addEventListener('click', function(){ step(-1); });
+  $('#lbNext').addEventListener('click', function(){ step(1); });
+  lb.addEventListener('click', function(e){ if(e.target===lb || e.target.classList.contains('lb-stage')) closeLB(); });
+  document.addEventListener('keydown', function(e){
+    if(!lb.classList.contains('open')){ if(e.key==='Escape') closeMenu(); return; }
+    if(e.key==='Escape') closeLB();
+    if(e.key==='ArrowRight') step(1);
+    if(e.key==='ArrowLeft') step(-1);
+  });
+
+  /* initial */
+  if(location.hash==='#description'){
+    home.hidden = true; desc.hidden = false; view='desc'; descBtn.classList.add('is-active');
+    observeReveals(desc);
+  }
+  onScroll();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveIndicator);
+})();
+</script>
+</body>
+</html>
